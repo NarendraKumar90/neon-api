@@ -21,7 +21,7 @@ app.get("/", async (req, res) => {
   try {
     const result = await pool.query("SELECT NOW()");
     res.json({
-      message: "Connected to Neon!",
+      message: "Connected to Naren !",
       time: result.rows[0],
     });
   } catch (err) {

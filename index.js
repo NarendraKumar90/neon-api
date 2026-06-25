@@ -41,6 +41,155 @@ app.get("/user", async (req, res) => {
   }
 });
 
+//get reg and tran
+
+app.get('/reg',async (req,res)=>{
+    var result=await pool.query('select * from reg')
+    res.json({ users: result.rows});
+})
+
+app.get('/reg/:id', async (req,res) => {
+   
+   try {
+    const { id } = req.params;
+     var result=await pool.query('select * from reg where uid=$1',[id])
+   res.json({ user: result.rows[0]});
+   } catch (error) {
+    return res.status(400).json({ error: 'Invalid user ID' });
+   }
+  
+})
+
+
+app.get('/tran/:tid', async (req,res) => {
+   
+   try {
+ const { tid } = req.params;
+     var result=await pool.query('select * from tran where tid=$1',[tid])
+   res.json({ transaction: result.rows[0]});
+   } catch (error) {
+    return res.status(400).json({ error: 'Invalid transaction ID' });
+   }
+  
+})
+
+
+app.get("/tran", async (req, res) => {
+  try {
+    const result = await pool.query("select * from tran order by tid desc");
+    res.json({ tran: result.rows });
+    console.log(result.rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+//post Api
+
+app.post("/save", async (req, res) => {
+  const { name, mob, opbal } = req.body;
+
+  try {
+    const result = await pool.query(
+      "INSERT INTO reg(name, mob, opbal) VALUES ($1, $2, $3) RETURNING  *",
+      [name, mob, opbal]
+    );
+
+    res.status(201).json({
+      message: "Data inserted successfully",
+      data: result.rows
+    });
+
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("Server error");
+  }
+});
+
+app.post("/tsave", async (req, res) => {
+  try {
+    const { uid,debit, credit, tdate, note } = req.body;
+
+    await pool.query(
+      "INSERT INTO tran (uid,debit, credit, tdate, note) VALUES ($1, $2, $3, $4, $5)",
+      [uid,debit, credit, tdate, note]
+    );
+
+    res.status(201).json({
+      message: "Transaction saved successfully"
+    });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({
+      error: "Server error"
+    });
+  }
+});
+
+//Put Api
+
+app.put("/update", async (req, res) => {
+  //const { id } = req.params;
+  const { name, mob, opbal } = req.body;
+
+  await pool.query(
+    "UPDATE reg SET name=$1, mob=$2, opbal=$3 WHERE id=$4",
+    [name, mob, opbal, id]
+  );
+
+  res.send("Updated");
+});
+
+app.put("/tupdt", async (req, res) => {
+  //const { id } = req.params;
+  const { debit, credit,tdate,note, tid } = req.body;
+
+  await pool.query(
+    "UPDATE tran SET debit=$1, credit=$2, tdate=$3, note=$4  WHERE tid=$5",
+    [debit, credit, tdate,note, tid]
+  );
+
+  res.send("Updated");
+});
+
+//Delete Api
+app.delete("/delete/:id", async (req, res) => {
+  const { id } = req.params;
+
+  await pool.query(
+    "DELETE FROM reg WHERE id=$1",
+    [id]
+  );
+
+  res.send("Deleted");
+});
+
+
+app.delete("/tdelete/:tid", async (req, res) => {
+  try {
+    const { tid } = req.params;
+
+    await pool.query(
+      "DELETE FROM tran WHERE tid = $1",
+      [tid]
+    );
+
+    res.json({
+      message: "Transaction deleted successfully"
+    });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({
+      error: "Server error"
+    });
+  }
+});
+
+
+
+
+
 // server
 const PORT = process.env.PORT || 3000;
 

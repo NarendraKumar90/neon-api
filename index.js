@@ -60,6 +60,74 @@ app.get('/reg/:id', async (req,res) => {
   
 })
 
+//Get current balance
+
+app.get('/currentbalance/:uid', async (req, res) => {
+  try {
+    const { uid } = req.params;
+
+    const result = await pool.query(
+      `SELECT current_bal
+       FROM tran
+       WHERE uid = $1
+       ORDER BY tid DESC
+       LIMIT 1`,
+      [uid]
+    );
+
+    res.status(200).json({
+      status: 200,
+      current_bal: result.rows.length ? result.rows[0].current_bal : 0
+    });
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+//Get Total debit
+
+app.get('/totaldebit', async (req, res) => {
+  try {
+
+    const result = await pool.query(
+      `SELECT COALESCE(SUM(debit), 0) AS total_debit
+       FROM tran`
+    );
+
+    res.status(200).json({
+      status: 200,
+      total_debit: result.rows[0].total_debit
+    });
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+//Get Total Credit
+
+app.get('/totalcredit', async (req, res) => {
+  try {
+
+    const result = await pool.query(
+      `SELECT COALESCE(SUM(credit), 0) AS total_credit
+       FROM tran`
+    );
+
+    res.status(200).json({
+      status: 200,
+      total_credit: result.rows[0].total_credit
+    });
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 
 app.get('/tran/:tid', async (req,res) => {
    
@@ -109,11 +177,11 @@ app.post("/save", async (req, res) => {
 
 app.post("/tsave", async (req, res) => {
   try {
-    const { uid,debit, credit, tdate, note } = req.body;
+    const { uid,debit, credit, tdate, note,current_bal } = req.body;
 
     await pool.query(
-      "INSERT INTO tran (uid,debit, credit, tdate, note) VALUES ($1, $2, $3, $4, $5)",
-      [uid,debit, credit, tdate, note]
+      "INSERT INTO tran (uid,debit, credit, tdate, note,current_bal) VALUES ($1, $2, $3, $4, $5,$6)",
+      [uid,debit, credit, tdate, note,current_bal]
     );
 
     res.status(201).json({
@@ -143,11 +211,11 @@ app.put("/update", async (req, res) => {
 
 app.put("/tupdt", async (req, res) => {
   //const { id } = req.params;
-  const { debit, credit,tdate,note, tid } = req.body;
+  const { debit, credit,tdate,note, current_bal,tid } = req.body;
 
   await pool.query(
-    "UPDATE tran SET debit=$1, credit=$2, tdate=$3, note=$4  WHERE tid=$5",
-    [debit, credit, tdate,note, tid]
+    "UPDATE tran SET debit=$1, credit=$2, tdate=$3, note=$4 ,current_bal=$5  WHERE tid=$6",
+    [debit, credit, tdate,note,current_bal, tid]
   );
 
   res.send("Updated");

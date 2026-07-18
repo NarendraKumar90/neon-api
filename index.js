@@ -6,7 +6,7 @@ const { Pool } = require("pg");
 
 const app = express();
 
-// middleware
+// middleware functionality
 app.use(cors());
 app.use(express.json());
 

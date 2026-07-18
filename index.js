@@ -41,6 +41,39 @@ app.get("/user", async (req, res) => {
   }
 });
 
+//Login
+
+app.post('/login', async (req, res) => {
+    try {
+        const { mob } = req.body;
+
+        const result = await pool.query(
+            'SELECT * FROM reg WHERE mob = $1 ',
+            [mob]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(401).send({
+                status: "401",
+                message: "Invalid Username or Password"
+            });
+        }
+
+        res.json({
+            status: "200",
+            message: "Login Success",
+            user: result.rows[0]
+        });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send({
+            status: "500",
+            message: "Server Error"
+        });
+    }
+});
+
 //get reg and tran
 
 app.get('/reg',async (req,res)=>{

@@ -183,6 +183,7 @@ app.post("/save", async (req, res) => {
     );
 
     res.status(201).json({
+        status: 201,
       message: "Data inserted successfully",
       data: result.rows
     });

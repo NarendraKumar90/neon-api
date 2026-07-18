@@ -67,7 +67,11 @@ app.get('/regByMob/:mob', async (req,res) => {
    try {
     const { mob } = req.params;
      var result=await pool.query('select * from reg where mob=$1',[mob])
-   res.json({ user: result.rows[0]});
+  // res.json({ user: result.rows[0]});
+     res.status(200).json({
+      status: 200,
+      user: result.rows[0]
+    });
    } catch (error) {
     return res.status(400).json({ error: 'Invalid user ID' });
    }

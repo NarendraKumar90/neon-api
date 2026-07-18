@@ -60,6 +60,20 @@ app.get('/reg/:id', async (req,res) => {
   
 })
 
+//get by Mobile 
+
+app.get('/regByMob/:mob', async (req,res) => {
+   
+   try {
+    const { mob } = req.params;
+     var result=await pool.query('select * from reg where mob=$1',[mob])
+   res.json({ user: result.rows[0]});
+   } catch (error) {
+    return res.status(400).json({ error: 'Invalid user ID' });
+   }
+  
+})
+
 //Get current balance
 
 app.get('/currentbalance/:uid', async (req, res) => {

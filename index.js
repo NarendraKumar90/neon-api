@@ -180,12 +180,12 @@ app.get('/totalcredit', async (req, res) => {
 });
 
 
-app.get('/tran/:tid', async (req,res) => {
+app.get('/tran/:uid', async (req,res) => {
    
    try {
- const { tid } = req.params;
-     var result=await pool.query('select * from tran where tid=$1',[tid])
-   res.json({ transaction: result.rows[0]});
+ const { uid } = req.params;
+     var result=await pool.query('select * from tran where uid=$1',[uid])
+   res.json({ transaction: result.rows });
    } catch (error) {
     return res.status(400).json({ error: 'Invalid transaction ID' });
    }

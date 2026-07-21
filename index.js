@@ -185,7 +185,7 @@ app.get('/tran/:uid', async (req,res) => {
    try {
  const { uid } = req.params;
      var result=await pool.query('select * from tran where uid=$1',[uid])
-   res.json({ transaction: result.rows });
+   res.json({ transaction: result.rows ,status: 200 });
    } catch (error) {
     return res.status(400).json({ error: 'Invalid transaction ID' });
    }
@@ -196,7 +196,7 @@ app.get('/tran/:uid', async (req,res) => {
 app.get("/tran", async (req, res) => {
   try {
     const result = await pool.query("select * from tran order by tid desc");
-    res.json({ tran: result.rows });
+    res.json({ tran: result.rows, status: 200 });
     console.log(result.rows);
   } catch (err) {
     console.error(err.message);
